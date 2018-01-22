@@ -97,11 +97,16 @@ multiple_choice_responses %>%
 This is clearly multiple select situation, where if a person selected multiple answers they're listed separated by commas. Let's tidy it up. 
 
 ```{r}
+multiple_choice_responses %>%
+  select(CurrentEmployerType) %>%
+  filter(!is.na(CurrentEmployerType)) %>%
+  mutate(employer_type = str_split(CurrentEmployerType, ","))
+
 unnested_employer_type <- multiple_choice_responses %>%
   select(CurrentEmployerType) %>%
   filter(!is.na(CurrentEmployerType)) %>%
-  mutate(employer_type = str_split(CurrentEmployerType, ",")) #%>%
-  #unnest(employer_type) 
+  mutate(employer_type = str_split(CurrentEmployerType, ",")) %>%
+  unnest(employer_type) 
 ```
 
 Now we have a couple options for examining the frequency of different employer types. In cases where there are a lot of optios, `forcats::fct_lump` for allows us to lump the less frequent into "other." We can define frequency either by proportion of total responses or by limiting the number of resulting levels we want. 
@@ -187,7 +192,7 @@ factor_questions <- dplyr::transmute(
 BRRR::skrrrahh("snoop")
 ```
 
-```{r}
+```{r eval = FALSE}
 ggplot(factor_questions, aes(x = response, y = n, group = aspect)) + 
   geom_line() + 
   facet_wrap(~ factor, scales = "free")
@@ -195,14 +200,13 @@ ggplot(factor_questions, aes(x = response, y = n, group = aspect)) +
 
 Well that's ... not very helpful.  
 
-```{r}
+```{r eval = FALSE}
 library(trelliscopejs)
 
 ggplot(factor_questions, aes(x = response, y = n, group = aspect, factor)) + 
   geom_line() + 
   facet_trelliscope(~ aspect, scales = "free")
 ```
-
 
 ```{r}
 WorkChallenges <- multiple_choice_responses %>%
@@ -240,11 +244,27 @@ ggplot(perc_problem_work_challenge, aes(x = fct_reorder(question, perc_problem),
   labs(x = "Aspect", y = "Percentage encountering challenge frequently")
 ```
 
-
+```{r}
+multiple_choice_responses %>%
+  count(TitleFit, CurrentJobTitleSelect) %>%
+  ggplot(aes(x = TitleFit, y = n, group = CurrentJobTitleSelect, color = CurrentJobTitleSelect)) + 
+  geom_line()
+```
+```{r}
+multiple_choice_responses %>%
+  mutate(TitleFit = fct_relevel(TitleFit, "Poorly", "Fine", "Perfectly")) %>%
+  count(TitleFit, CurrentJobTitleSelect) %>%
+  add_count(CurrentJobTitleSelect, wt = n) %>%
+  mutate(perc_answer = n/nn) %>%
+  na.omit() %>%
+  ggplot(aes(x = TitleFit, y = perc_answer, group = fct_reorder(CurrentJobTitleSelect, n), color = fct_reorder(CurrentJobTitleSelect, n))) + 
+  geom_line()
+```
+  
 ```{r eval = FALSE}
 dplyr::case_when()
 dplyr::pull()
-contains(), starts_with(), ends_with()
+starts_with(), ends_with()
 dplyr::add_count()
 fs
 enframe(), deframe()
