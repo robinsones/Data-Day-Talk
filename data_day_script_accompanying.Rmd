@@ -1,0 +1,344 @@
+---
+title: "Data Day Accompanying Script"
+author: "Emily Robinson"
+date: "1/23/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = TRUE)
+library(tidyverse)
+library(glue)
+library(magrittr)
+```
+
+## Reading in the data
+
+We'll try the base R way first. 
+
+```{r}
+multiple_choice_responses_base <- read.csv("multipleChoiceResponses.csv")
+# multiple_choice_responses_base
+```
+
+Let's say we wanted to know the numbers of NAs in each column. We can use `is.na` to change each entry in a column to TRUE or FALSE, depending on whether it's NA, and then sum the column (because `TRUE` evaluates as 1 and `FALSE` as 0) to get the total number of NAs. 
+
+To do this for every column, we can use `purrr::map_df`, which applies the given function over the whole dataset, column by column, and returns a dataframe with the same column name and one row representing the number of NAs in each column. If you're used to the `apply` family of functions, `purrr` offers the same capabilities in a more consistent way.  
+
+```{r}
+# for one column
+sum(is.na(multiple_choice_responses_base$Country))
+
+# for every column 
+multiple_choice_responses_base %>%
+  purrr::map_df(~sum(is.na(.)))
+```
+
+Wow that's lucky! So many variables that don't have NAs. But ... is it too good to be true? Let's look at the entries of 
+
+```{r}
+multiple_choice_responses_base %>%
+  dplyr::count(StudentStatus)
+```
+
+Yep. We see here we have a lot of `""` entries instead of NAs. We can correct this with `dplyr::na_if`. We can also use `%<>%`, which is a reassignment pipe. 
+
+```{r}
+multiple_choice_responses_base %<>%
+  dplyr::na_if("")
+
+## is the same as: 
+
+multiple_choice_responses_base <- multiple_choice_responses_base %>%
+  na_if("")
+```
+
+Now we can count the NAs again. 
+```{r}
+multiple_choice_responses_base %>%
+  purrr::map_df(~sum(is.na(.)))
+```
+
+And it's fixed! 
+
+Alternative: use `readr::read_csv` instead of `read.csv`. 
+
+```{r}
+multiple_choice_responses <- readr::read_csv("multipleChoiceResponses.csv")
+```
+
+It's definitely faster, but it seems we have some errors. Let's inspect them. 
+
+```{r}
+problems(multiple_choice_responses)
+```
+
+We see the row and column where the problem occurs. What's happening is that `read_csv` uses the first 1000 rows of a column to guess its type. But in some cases, it's guessing the column integer, because the first 1000 rows are whole numbers, when actually it should be double, as some entries have decimal points. We can fix this by changing the number of rows `read_csv` uses to guess the column type (with the `guess_max` argument) to the number of rows in the dataset. 
+
+```{r}
+multiple_choice_responses <- readr::read_csv("multipleChoiceResponses.csv", 
+                                             guess_max = nrow(multiple_choice_responses))
+```
+
+Great! Let's see what we can glean from the column names themselves.
+
+```{r}
+colnames(multiple_choice_responses)
+```
+
+It's clear that there were categories of questions, like "Job Factor" and "Work Methods Frequency."
+
+Now let's take a look at our numeric columns with skimr. Skimr is a package from rOpenSci that allows you to quickly view summaries of your data. `select_if` is a great package if you want to select only columns where a certain condition is true (in this case, whether it's a numeric column).  
+
+```{r}
+multiple_choice_responses %>%
+  select_if(is.numeric) %>%
+  skimr::skim()
+```
+
+I love the histograms. We can quickly see from the histogram that people learn a lot from being self taught and spend a good amount of time building models and gathering data, compared to visualizing or working in production.   
+
+Let's see how many distinct answers we have for each question (most interesting for the non-numeric questions). `n_distinct()` is just a shorter and faster version of `length(unique())`. We can use `map_df` once again to apply a function to every column. 
+
+```{r}
+multiple_choice_responses %>%
+  purrr::map_df(~n_distinct(.)) 
+```
+
+This data would be more helpful if it was tidy and had two columns, `variable` and `num_distinct_answers`. We can use `tidyr::gather` to change our data from "wide" to "long" format and then `arrange` it so we can see the columns with the most distinct answers first. If you've used (or are still using!) reshape2, check out tidyr; reshape2 is retired. While not exactly equivalent, `tidyr::spread` replaces `reshape2::dcast`, `tidyr::separate` `reshape2::colsplit`, and `tidyr::gather` `reshape2::melt`. 
+
+```{r}
+multiple_choice_responses %>%
+  purrr::map_df(~n_distinct(.)) %>%
+  tidyr::gather(question, num_distinct_answers) %>%
+  arrange(desc(num_distinct_answers))
+```
+
+Let's take a look at one of the ones with the most distinct answers. 
+
+```{r}
+multiple_choice_responses %>%
+  count(fct_infreq(WorkMethodsSelect))
+```
+
+This is clearly multiple select situation, where if a person selected multiple answers they're listed separated by commas. Let's tidy it up. 
+
+`!` here is short for `== FALSE`. So `!is.na(WorkMethodsSelect)` is the same as `is.na(WorkMethodsSelect) == FALSE`. 
+
+```{r}
+nested_workmethods <- multiple_choice_responses %>%
+  select(WorkMethodsSelect) %>%
+  filter(!is.na(WorkMethodsSelect)) %>%
+  mutate(work_method = str_split(WorkMethodsSelect, ",")) 
+
+nested_workmethods
+```
+
+We can unnest. 
+
+```{r}
+unnested_workmethods <- nested_workmethods %>%
+  unnest(work_method) %>%
+  select(work_method)
+
+unnested_workmethods
+```
+
+Now we have a couple options for examining the frequency of different work methods. But before we do so, we actually bring it back to having each method be one row and the number of people (in this case, number of entires, since each person could only list a method once) being another column. 
+
+```{r}
+method_freq <- unnested_workmethods %>%
+  count(method = fct_infreq(work_method))
+
+method_freq
+```
+
+Now I want to move on to understanding what challenges people face at work. This was one of those categories where there were multiple questions asked, all having names starting with `WorkChallengeFrequency` and ending with the challenge (e.g "DirtyData"). 
+
+We can find the relevant columns by using the dplyr `select` helper `contains`. We then use `gather` to tidy the data for analysis, keep only the non-NAs, and remove the irrelevant part of the name for each question using `stringr::str_replace`. 
+
+```{r}
+WorkChallenges <- multiple_choice_responses %>%
+  select(contains("WorkChallengeFrequency")) %>%
+  gather(question, response) %>%
+  filter(!is.na(response)) %>%
+  mutate(question = stringr::str_replace(question, "WorkChallengeFrequency", "")) 
+
+ggplot(WorkChallenges, aes(x = response)) + 
+  geom_bar() + 
+  facet_wrap(~question) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+This graph has two main problems. First, there are too many histograms. But second, the order of the x-axis is wrong. We want it to go from least often to most, but instead `rarely` is in the middle. We can manually reorder the level of this variable using `forcats::fct_relevel`. 
+
+```{r}
+WorkChallenges %>%
+  mutate(response = forcats::fct_relevel(response, "Rarely", "Sometimes", "Often", "Most of the time")) %>%
+  ggplot(aes(x = response)) + 
+  geom_bar() + 
+  facet_wrap(~question) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+Now we've got the x-axis in the order we want it. Let's try dichotimizing the variable by grouping "most of the time" and "often" together as the person considering something a challenge. We can use `if_else` and `%in%`. `%in%` is equivalent to `response == "Most of the time" | response == "Often"` and can save you a lot of typing if you have a bunch of variables to match. 
+
+Grouping by the question, we can use `summarise` to reduce the dataset to one row per question, adding the variable `perc_problem` for the percentage of responses that thought something was a challenge often or most of the time. This way, we can make one graph with data for all the questions and easily compare them. 
+
+```{r}
+perc_problem_work_challenge <- WorkChallenges %>%
+  mutate(response = if_else(response %in% c("Most of the time", "Often"), 1, 0)) %>%
+  group_by(question) %>%
+  summarise(perc_problem = mean(response)) 
+```
+
+```{r}
+ggplot(perc_problem_work_challenge, aes(x = question, y = perc_problem)) + 
+  geom_point() +
+  coord_flip()
+```
+
+This is better, but it's hard to read because the points are scattered all over the place. Although you can spot the highest one, then you have to track it back to the correct variable. And it's also hard to tell the order of the ones in the middle. 
+
+We can use `forcats:fct_reorder` to have the x-axis be ordered by another variable, in this case the y-axis. While we're at it, we can use `scale_y_continuous` and`scales::percent` to update our axis to display in percent and `labs` to change our axis labels. 
+
+```{r}
+ggplot(perc_problem_work_challenge, aes(x = fct_reorder(question, perc_problem), y = perc_problem)) + 
+  geom_point() +
+  coord_flip() + 
+  scale_y_continuous(labels = scales::percent) + 
+  labs(x = "Aspect", y = "Percentage encountering challenge frequently")
+```
+
+####BAD#####
+In cases where there are a lot of options, `forcats::fct_lump` for allows us to lump the less frequent into "other." We can define frequency either by proportion of total responses or by limiting the number of resulting levels we want. 
+ 
+```{r}
+# We only want to keep factors that apply to more than 5% of the answers. 
+method_freq %>%
+  mutate(method = fct_lump(method, prop = .05)) %>%
+  count(fct_infreq(method))
+```
+
+```{r}
+# We want 5 levels and everything else in "other".
+method_freq %>%
+  mutate(method = fct_lump(method, n = 5)) %>%
+  count(fct_infreq(method))
+```
+
+Now I want to understand those questions that came in categories, like "Job Factor," more. I think a good place to start is by tidying the dataset and separating the question name into two parts: the category and the specific aspect. But what if I don't know how to do that? 
+
+To ask a question to others, I can make a minimal, reproducible example that I can then post on Stack Overflow or RStudio Community. 
+
+```{r}
+library(tibble)
+original_df <- tribble(
+  ~variable, ~response,
+  "JobFactorDiversity", "Important", 
+  "JobFactorRemote", "Not Important", 
+  "JobFactorDiversity", "Not Important", 
+  "WorkChallengeTools", "Frequently", 
+  "WorkChallengeDirtyData", "Rarely" 
+)
+
+desired_df <- tribble( 
+  ~factor, ~aspect, ~response, 
+  "JobFactor", "Diversity", "Important", 
+  "JobFactor", "Remote", "Not Important", 
+  "JobFactor", "Diversity", "Not Important", 
+  "WorkChallenge", "Tools", "Frequently", 
+  "WorkChallenge", "DirtyData", "Rarely" 
+)
+```
+
+```{r eval = FALSE}
+reprex::reprex()
+```
+
+```{r}
+colnames(multiple_choice_responses)
+```
+
+```{r}
+aspects <- "JobFactor|WorkChallengeFrequency|WorkMethodsFrequency|WorkToolsFrequency|LearningPlatformUsefulness|JobSkillImportance"
+
+responses <- glue::glue("({aspects})(.*)")
+responses
+```
+
+`str_match` - first column is the complete match, and then one column for each capture group. 
+
+```{r}
+multiple_choice_responses_gathered <- multiple_choice_responses %>%
+  gather(question, response) %>%
+  filter(!is.na(stringr::str_extract(question, aspects))) %>%
+  filter(!is.na(response))
+
+stringr::str_extract("WorkChallengeFrequencyDirtyData", aspects)
+stringr::str_match("WorkChallengeFrequencyDirtyData", responses)
+stringr::str_match("WorkChallengeFrequencyDirtyData", responses)[[3]]
+```
+
+If you've got some code you know will take a little while to run - set a sound to play at the end to notify you when it's done!
+
+```{r}
+# transmute only keeps the new variables
+factor_questions <- dplyr::transmute(
+    multiple_choice_responses_gathered, 
+    factor = purrr::map_chr(question, ~ stringr::str_extract(., aspects)),
+    aspect = purrr::map_chr(question, ~ stringr::str_match(., responses)[[3]]),
+    response = response) %>%
+  count(factor, aspect, response) 
+BRRR::skrrrahh("snoop")
+```
+
+```{r eval = FALSE}
+ggplot(factor_questions, aes(x = response, y = n, group = aspect)) + 
+  geom_line() + 
+  facet_wrap(~ factor, scales = "free")
+```
+
+Well that's ... not very helpful.  
+
+```{r eval = FALSE}
+library(trelliscopejs)
+
+ggplot(factor_questions, aes(x = response, y = n, group = aspect, factor)) + 
+  geom_line() + 
+  facet_trelliscope(~ aspect, scales = "free")
+```
+
+```{r}
+multiple_choice_responses %>%
+  count(TitleFit, CurrentJobTitleSelect) %>%
+  ggplot(aes(x = TitleFit, y = n, group = CurrentJobTitleSelect, color = CurrentJobTitleSelect)) + 
+  geom_line()
+```
+
+```{r}
+multiple_choice_responses %>%
+  mutate(TitleFit = fct_relevel(TitleFit, "Poorly", "Fine", "Perfectly")) %>%
+  count(TitleFit, CurrentJobTitleSelect) %>%
+  add_count(CurrentJobTitleSelect, wt = n) %>%
+  mutate(perc_answer = n/nn) %>%
+  na.omit() %>%
+  ggplot(aes(x = TitleFit, y = perc_answer, group = fct_reorder(CurrentJobTitleSelect, n), color = fct_reorder(CurrentJobTitleSelect, n))) + 
+  geom_line()
+```
+  
+```{r eval = FALSE}
+dplyr::case_when()
+dplyr::pull()
+starts_with(), ends_with()
+dplyr::add_count()
+fs
+enframe(), deframe()
+lubridate::floor_date("week")
+stringr::str_replace_all()
+dplyr::distinct()
+dplyr::mutate_if(), dplyr::mutate_at()
+```
+
+
