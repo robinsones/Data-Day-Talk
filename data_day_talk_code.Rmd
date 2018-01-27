@@ -19,7 +19,7 @@ We'll try the base R way first.
 
 ```{r}
 multiple_choice_responses_base <- read.csv("multipleChoiceResponses.csv")
-# multiple_choice_responses_base
+multiple_choice_responses_base
 ```
 
 Now we can count NAs in each column.
@@ -34,14 +34,16 @@ multiple_choice_responses_base %>%
 ```
 
 No NAS - too good to be true?
+
 ```{r}
 multiple_choice_responses_base %>%
   dplyr::count(StudentStatus)
 ```
 
 Use `na_if` to change `""` to `NA`. 
+
 ```{r}
-multiple_choice_responses_base %<>%
+multiple_choice_responses_base %<>% 
   dplyr::na_if("")
 
 ## is the same as: 
@@ -105,11 +107,12 @@ multiple_choice_responses %>%
 ```
 
 ### Examine Work Methods
+
 Let's take a look at one of the ones with the most distinct answers. 
 
 ```{r}
 multiple_choice_responses %>%
-  count(fct_infreq(WorkMethodsSelect))
+  count(forcats::fct_infreq(WorkMethodsSelect))
 ```
 
 Here people are clearly selecting multiple answers, recorded separated by commas. Let's tidy it up. 
@@ -152,6 +155,8 @@ WorkChallenges <- multiple_choice_responses %>%
   gather(question, response) %>%
   filter(!is.na(response)) %>%
   mutate(question = stringr::str_replace(question, "WorkChallengeFrequency", "")) 
+
+WorkChallenges
 ```
 
 Try an initial plot. 
@@ -196,5 +201,6 @@ ggplot(perc_problem_work_challenge, aes(x = fct_reorder(question, perc_problem),
   geom_point() +
   coord_flip() + 
   scale_y_continuous(labels = scales::percent) + 
-  labs(x = "Aspect", y = "Percentage encountering challenge frequently")
+  labs(x = "Question", y = "Percentage encountering challenge frequently")
 ```
+
