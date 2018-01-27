@@ -9,7 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(warning = TRUE)
 library(tidyverse)
-library(glue)
 library(magrittr)
 ```
 
@@ -27,8 +26,11 @@ Now we can count NAs in each column.
 ```{r}
 # for one column
 sum(is.na(multiple_choice_responses_base$Country))
+```
 
-# for every column 
+For every column: 
+
+```{r}
 multiple_choice_responses_base %>%
   purrr::map_df(~sum(is.na(.)))
 ```
@@ -46,10 +48,10 @@ Use `na_if` to change `""` to `NA`.
 multiple_choice_responses_base %<>% 
   dplyr::na_if("")
 
-## is the same as: 
-
+# is the same as: 
 multiple_choice_responses_base <- multiple_choice_responses_base %>%
   na_if("")
+
 ```
 
 Now we can count the NAs again. 
@@ -112,7 +114,7 @@ Let's take a look at one of the ones with the most distinct answers.
 
 ```{r}
 multiple_choice_responses %>%
-  count(forcats::fct_infreq(WorkMethodsSelect))
+  count(WorkMethod = forcats::fct_infreq(WorkMethodsSelect))
 ```
 
 Here people are clearly selecting multiple answers, recorded separated by commas. Let's tidy it up. 
