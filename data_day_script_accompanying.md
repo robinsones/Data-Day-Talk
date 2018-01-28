@@ -21,7 +21,7 @@ multiple_choice_responses_base <- read.csv("multipleChoiceResponses.csv")
 
 Let's say we wanted to know the numbers of NAs in each column. We can use `is.na` to change each entry in a column to TRUE or FALSE, depending on whether it's NA, and then sum the column (because `TRUE` evaluates as 1 and `FALSE` as 0) to get the total number of NAs. 
 
-To do this for every column, we can use `purrr::map_df`, which applies the given function over the whole dataset, column by column, and returns a dataframe with the same column name and one row representing the number of NAs in each column. If you're used to the `apply` family of functions, `purrr` offers the same capabilities in a more consistent way.  
+To do this for every column, we can use `purrr::map_df`, which applies the given function over the whole dataset, column by column, and returns a dataframe with the same column names and one row representing the number of NAs in each column. If you're used to the `apply` family of functions, `purrr` offers the same capabilities in a more consistent way. The `_df` part of the function represents what we want back (a dataframe); using `map` would get us a list. 
 
 
 ```r
@@ -44,13 +44,14 @@ multiple_choice_responses_base %>%
 ##   GenderSelect Country   Age EmploymentStatus StudentStatus
 ##          <int>   <int> <int>            <int>         <int>
 ## 1            0       0   331                0             0
-## # ... with 223 more variables: LearningDataScience <int>, CodeWriter
-## #   <int>, CareerSwitcher <int>, CurrentJobTitleSelect <int>, TitleFit
-## #   <int>, CurrentEmployerType <int>, MLToolNextYearSelect <int>,
+## # ... with 223 more variables: LearningDataScience <int>,
+## #   CodeWriter <int>, CareerSwitcher <int>, CurrentJobTitleSelect <int>,
+## #   TitleFit <int>, CurrentEmployerType <int>, MLToolNextYearSelect <int>,
 ## #   MLMethodNextYearSelect <int>, LanguageRecommendationSelect <int>,
 ## #   PublicDatasetsSelect <int>, LearningPlatformSelect <int>,
-## #   LearningPlatformUsefulnessArxiv <int>, LearningPlatformUsefulnessBlogs
-## #   <int>, LearningPlatformUsefulnessCollege <int>,
+## #   LearningPlatformUsefulnessArxiv <int>,
+## #   LearningPlatformUsefulnessBlogs <int>,
+## #   LearningPlatformUsefulnessCollege <int>,
 ## #   LearningPlatformUsefulnessCompany <int>,
 ## #   LearningPlatformUsefulnessConferences <int>,
 ## #   LearningPlatformUsefulnessFriends <int>,
@@ -60,29 +61,33 @@ multiple_choice_responses_base %>%
 ## #   LearningPlatformUsefulnessDocumentation <int>,
 ## #   LearningPlatformUsefulnessCourses <int>,
 ## #   LearningPlatformUsefulnessProjects <int>,
-## #   LearningPlatformUsefulnessPodcasts <int>, LearningPlatformUsefulnessSO
-## #   <int>, LearningPlatformUsefulnessTextbook <int>,
+## #   LearningPlatformUsefulnessPodcasts <int>,
+## #   LearningPlatformUsefulnessSO <int>,
+## #   LearningPlatformUsefulnessTextbook <int>,
 ## #   LearningPlatformUsefulnessTradeBook <int>,
 ## #   LearningPlatformUsefulnessTutoring <int>,
 ## #   LearningPlatformUsefulnessYouTube <int>,
 ## #   BlogsPodcastsNewslettersSelect <int>, LearningDataScienceTime <int>,
 ## #   JobSkillImportanceBigData <int>, JobSkillImportanceDegree <int>,
-## #   JobSkillImportanceStats <int>, JobSkillImportanceEnterpriseTools
-## #   <int>, JobSkillImportancePython <int>, JobSkillImportanceR <int>,
+## #   JobSkillImportanceStats <int>,
+## #   JobSkillImportanceEnterpriseTools <int>,
+## #   JobSkillImportancePython <int>, JobSkillImportanceR <int>,
 ## #   JobSkillImportanceSQL <int>, JobSkillImportanceKaggleRanking <int>,
 ## #   JobSkillImportanceMOOC <int>, JobSkillImportanceVisualizations <int>,
-## #   JobSkillImportanceOtherSelect1 <int>, JobSkillImportanceOtherSelect2
-## #   <int>, JobSkillImportanceOtherSelect3 <int>, CoursePlatformSelect
-## #   <int>, HardwarePersonalProjectsSelect <int>, TimeSpentStudying <int>,
+## #   JobSkillImportanceOtherSelect1 <int>,
+## #   JobSkillImportanceOtherSelect2 <int>,
+## #   JobSkillImportanceOtherSelect3 <int>, CoursePlatformSelect <int>,
+## #   HardwarePersonalProjectsSelect <int>, TimeSpentStudying <int>,
 ## #   ProveKnowledgeSelect <int>, DataScienceIdentitySelect <int>,
 ## #   FormalEducation <int>, MajorSelect <int>, Tenure <int>,
 ## #   PastJobTitlesSelect <int>, FirstTrainingSelect <int>,
-## #   LearningCategorySelftTaught <int>, LearningCategoryOnlineCourses
-## #   <int>, LearningCategoryWork <int>, LearningCategoryUniversity <int>,
-## #   LearningCategoryKaggle <int>, LearningCategoryOther <int>,
-## #   MLSkillsSelect <int>, MLTechniquesSelect <int>, ParentsEducation
-## #   <int>, EmployerIndustry <int>, EmployerSize <int>, EmployerSizeChange
-## #   <int>, EmployerMLTime <int>, EmployerSearchMethod <int>,
+## #   LearningCategorySelftTaught <int>,
+## #   LearningCategoryOnlineCourses <int>, LearningCategoryWork <int>,
+## #   LearningCategoryUniversity <int>, LearningCategoryKaggle <int>,
+## #   LearningCategoryOther <int>, MLSkillsSelect <int>,
+## #   MLTechniquesSelect <int>, ParentsEducation <int>,
+## #   EmployerIndustry <int>, EmployerSize <int>, EmployerSizeChange <int>,
+## #   EmployerMLTime <int>, EmployerSearchMethod <int>,
 ## #   UniversityImportance <int>, JobFunctionSelect <int>,
 ## #   WorkHardwareSelect <int>, WorkDataTypeSelect <int>,
 ## #   WorkProductionFrequency <int>, WorkDatasetSize <int>,
@@ -93,16 +98,18 @@ multiple_choice_responses_base %>%
 ## #   WorkToolsFrequencyFlume <int>, WorkToolsFrequencyGCP <int>,
 ## #   WorkToolsFrequencyHadoop <int>, WorkToolsFrequencyIBMCognos <int>,
 ## #   WorkToolsFrequencyIBMSPSSModeler <int>,
-## #   WorkToolsFrequencyIBMSPSSStatistics <int>, WorkToolsFrequencyIBMWatson
-## #   <int>, WorkToolsFrequencyImpala <int>, WorkToolsFrequencyJava <int>,
-## #   WorkToolsFrequencyJulia <int>, WorkToolsFrequencyJupyter <int>,
-## #   WorkToolsFrequencyKNIMECommercial <int>, WorkToolsFrequencyKNIMEFree
-## #   <int>, WorkToolsFrequencyMathematica <int>, WorkToolsFrequencyMATLAB
-## #   <int>, WorkToolsFrequencyAzure <int>, WorkToolsFrequencyExcel <int>,
-## #   WorkToolsFrequencyMicrosoftRServer <int>, …
+## #   WorkToolsFrequencyIBMSPSSStatistics <int>,
+## #   WorkToolsFrequencyIBMWatson <int>, WorkToolsFrequencyImpala <int>,
+## #   WorkToolsFrequencyJava <int>, WorkToolsFrequencyJulia <int>,
+## #   WorkToolsFrequencyJupyter <int>,
+## #   WorkToolsFrequencyKNIMECommercial <int>,
+## #   WorkToolsFrequencyKNIMEFree <int>,
+## #   WorkToolsFrequencyMathematica <int>, WorkToolsFrequencyMATLAB <int>,
+## #   WorkToolsFrequencyAzure <int>, WorkToolsFrequencyExcel <int>,
+## #   WorkToolsFrequencyMicrosoftRServer <int>, ...
 ```
 
-Wow that's lucky! So many variables that don't have NAs. But ... is it too good to be true? Let's look at the entries of 
+Wow that's lucky! So many variables that don't have NAs. But ... is it too good to be true? Let's look at the entries of one column.  
 
 
 ```r
@@ -113,13 +120,13 @@ multiple_choice_responses_base %>%
 ```
 ## # A tibble: 3 x 2
 ##   StudentStatus     n
-##   <fct>         <int>
-## 1 ""            15436
-## 2 No              299
-## 3 Yes             981
+##          <fctr> <int>
+## 1               15436
+## 2            No   299
+## 3           Yes   981
 ```
 
-Yep. We see here we have a lot of `""` entries instead of NAs. We can correct this with `dplyr::na_if`. We can also use `%<>%`, which is a reassignment pipe. 
+Yep. We see here we have a lot of `""` entries instead of NAs. We can correct this with `dplyr::na_if`, which takes as an argument what we want to turn into NAs. We can also use `%<>%`, which is a reassignment pipe. 
 
 
 ```r
@@ -134,6 +141,7 @@ multiple_choice_responses_base <- multiple_choice_responses_base %>%
 
 Now we can count the NAs again. 
 
+
 ```r
 multiple_choice_responses_base %>%
   purrr::map_df(~sum(is.na(.)))
@@ -144,13 +152,14 @@ multiple_choice_responses_base %>%
 ##   GenderSelect Country   Age EmploymentStatus StudentStatus
 ##          <int>   <int> <int>            <int>         <int>
 ## 1           95     121   331                0         15436
-## # ... with 223 more variables: LearningDataScience <int>, CodeWriter
-## #   <int>, CareerSwitcher <int>, CurrentJobTitleSelect <int>, TitleFit
-## #   <int>, CurrentEmployerType <int>, MLToolNextYearSelect <int>,
+## # ... with 223 more variables: LearningDataScience <int>,
+## #   CodeWriter <int>, CareerSwitcher <int>, CurrentJobTitleSelect <int>,
+## #   TitleFit <int>, CurrentEmployerType <int>, MLToolNextYearSelect <int>,
 ## #   MLMethodNextYearSelect <int>, LanguageRecommendationSelect <int>,
 ## #   PublicDatasetsSelect <int>, LearningPlatformSelect <int>,
-## #   LearningPlatformUsefulnessArxiv <int>, LearningPlatformUsefulnessBlogs
-## #   <int>, LearningPlatformUsefulnessCollege <int>,
+## #   LearningPlatformUsefulnessArxiv <int>,
+## #   LearningPlatformUsefulnessBlogs <int>,
+## #   LearningPlatformUsefulnessCollege <int>,
 ## #   LearningPlatformUsefulnessCompany <int>,
 ## #   LearningPlatformUsefulnessConferences <int>,
 ## #   LearningPlatformUsefulnessFriends <int>,
@@ -160,29 +169,33 @@ multiple_choice_responses_base %>%
 ## #   LearningPlatformUsefulnessDocumentation <int>,
 ## #   LearningPlatformUsefulnessCourses <int>,
 ## #   LearningPlatformUsefulnessProjects <int>,
-## #   LearningPlatformUsefulnessPodcasts <int>, LearningPlatformUsefulnessSO
-## #   <int>, LearningPlatformUsefulnessTextbook <int>,
+## #   LearningPlatformUsefulnessPodcasts <int>,
+## #   LearningPlatformUsefulnessSO <int>,
+## #   LearningPlatformUsefulnessTextbook <int>,
 ## #   LearningPlatformUsefulnessTradeBook <int>,
 ## #   LearningPlatformUsefulnessTutoring <int>,
 ## #   LearningPlatformUsefulnessYouTube <int>,
 ## #   BlogsPodcastsNewslettersSelect <int>, LearningDataScienceTime <int>,
 ## #   JobSkillImportanceBigData <int>, JobSkillImportanceDegree <int>,
-## #   JobSkillImportanceStats <int>, JobSkillImportanceEnterpriseTools
-## #   <int>, JobSkillImportancePython <int>, JobSkillImportanceR <int>,
+## #   JobSkillImportanceStats <int>,
+## #   JobSkillImportanceEnterpriseTools <int>,
+## #   JobSkillImportancePython <int>, JobSkillImportanceR <int>,
 ## #   JobSkillImportanceSQL <int>, JobSkillImportanceKaggleRanking <int>,
 ## #   JobSkillImportanceMOOC <int>, JobSkillImportanceVisualizations <int>,
-## #   JobSkillImportanceOtherSelect1 <int>, JobSkillImportanceOtherSelect2
-## #   <int>, JobSkillImportanceOtherSelect3 <int>, CoursePlatformSelect
-## #   <int>, HardwarePersonalProjectsSelect <int>, TimeSpentStudying <int>,
+## #   JobSkillImportanceOtherSelect1 <int>,
+## #   JobSkillImportanceOtherSelect2 <int>,
+## #   JobSkillImportanceOtherSelect3 <int>, CoursePlatformSelect <int>,
+## #   HardwarePersonalProjectsSelect <int>, TimeSpentStudying <int>,
 ## #   ProveKnowledgeSelect <int>, DataScienceIdentitySelect <int>,
 ## #   FormalEducation <int>, MajorSelect <int>, Tenure <int>,
 ## #   PastJobTitlesSelect <int>, FirstTrainingSelect <int>,
-## #   LearningCategorySelftTaught <int>, LearningCategoryOnlineCourses
-## #   <int>, LearningCategoryWork <int>, LearningCategoryUniversity <int>,
-## #   LearningCategoryKaggle <int>, LearningCategoryOther <int>,
-## #   MLSkillsSelect <int>, MLTechniquesSelect <int>, ParentsEducation
-## #   <int>, EmployerIndustry <int>, EmployerSize <int>, EmployerSizeChange
-## #   <int>, EmployerMLTime <int>, EmployerSearchMethod <int>,
+## #   LearningCategorySelftTaught <int>,
+## #   LearningCategoryOnlineCourses <int>, LearningCategoryWork <int>,
+## #   LearningCategoryUniversity <int>, LearningCategoryKaggle <int>,
+## #   LearningCategoryOther <int>, MLSkillsSelect <int>,
+## #   MLTechniquesSelect <int>, ParentsEducation <int>,
+## #   EmployerIndustry <int>, EmployerSize <int>, EmployerSizeChange <int>,
+## #   EmployerMLTime <int>, EmployerSearchMethod <int>,
 ## #   UniversityImportance <int>, JobFunctionSelect <int>,
 ## #   WorkHardwareSelect <int>, WorkDataTypeSelect <int>,
 ## #   WorkProductionFrequency <int>, WorkDatasetSize <int>,
@@ -193,13 +206,15 @@ multiple_choice_responses_base %>%
 ## #   WorkToolsFrequencyFlume <int>, WorkToolsFrequencyGCP <int>,
 ## #   WorkToolsFrequencyHadoop <int>, WorkToolsFrequencyIBMCognos <int>,
 ## #   WorkToolsFrequencyIBMSPSSModeler <int>,
-## #   WorkToolsFrequencyIBMSPSSStatistics <int>, WorkToolsFrequencyIBMWatson
-## #   <int>, WorkToolsFrequencyImpala <int>, WorkToolsFrequencyJava <int>,
-## #   WorkToolsFrequencyJulia <int>, WorkToolsFrequencyJupyter <int>,
-## #   WorkToolsFrequencyKNIMECommercial <int>, WorkToolsFrequencyKNIMEFree
-## #   <int>, WorkToolsFrequencyMathematica <int>, WorkToolsFrequencyMATLAB
-## #   <int>, WorkToolsFrequencyAzure <int>, WorkToolsFrequencyExcel <int>,
-## #   WorkToolsFrequencyMicrosoftRServer <int>, …
+## #   WorkToolsFrequencyIBMSPSSStatistics <int>,
+## #   WorkToolsFrequencyIBMWatson <int>, WorkToolsFrequencyImpala <int>,
+## #   WorkToolsFrequencyJava <int>, WorkToolsFrequencyJulia <int>,
+## #   WorkToolsFrequencyJupyter <int>,
+## #   WorkToolsFrequencyKNIMECommercial <int>,
+## #   WorkToolsFrequencyKNIMEFree <int>,
+## #   WorkToolsFrequencyMathematica <int>, WorkToolsFrequencyMATLAB <int>,
+## #   WorkToolsFrequencyAzure <int>, WorkToolsFrequencyExcel <int>,
+## #   WorkToolsFrequencyMicrosoftRServer <int>, ...
 ```
 
 And it's fixed! 
@@ -215,21 +230,19 @@ multiple_choice_responses <- readr::read_csv("multipleChoiceResponses.csv")
 ## Parsed with column specification:
 ## cols(
 ##   .default = col_character(),
-##   Age = col_double(),
-##   LearningCategorySelftTaught = col_double(),
-##   LearningCategoryOnlineCourses = col_double(),
-##   LearningCategoryWork = col_double(),
+##   Age = col_integer(),
+##   LearningCategorySelftTaught = col_integer(),
+##   LearningCategoryOnlineCourses = col_integer(),
+##   LearningCategoryWork = col_integer(),
 ##   LearningCategoryUniversity = col_double(),
 ##   LearningCategoryKaggle = col_double(),
-##   LearningCategoryOther = col_double(),
-##   WorkToolsFrequencyKNIMECommercial = col_logical(),
-##   TimeGatheringData = col_double(),
-##   TimeModelBuilding = col_double(),
-##   TimeProduction = col_double(),
-##   TimeVisualizing = col_double(),
-##   TimeFindingInsights = col_double(),
-##   TimeOtherSelect = col_double(),
-##   CompensationAmount = col_number()
+##   LearningCategoryOther = col_integer(),
+##   TimeGatheringData = col_integer(),
+##   TimeModelBuilding = col_integer(),
+##   TimeProduction = col_integer(),
+##   TimeVisualizing = col_integer(),
+##   TimeFindingInsights = col_integer(),
+##   TimeOtherSelect = col_integer()
 ## )
 ```
 
@@ -238,14 +251,14 @@ multiple_choice_responses <- readr::read_csv("multipleChoiceResponses.csv")
 ```
 
 ```
-## Warning: 43 parsing failures.
-##  row                               col           expected           actual                          file
-## 1209 CompensationAmount                a number           -                'multipleChoiceResponses.csv'
-## 1316 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Rarely           'multipleChoiceResponses.csv'
-## 1594 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Often            'multipleChoiceResponses.csv'
-## 2443 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Most of the time 'multipleChoiceResponses.csv'
-## 2466 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Most of the time 'multipleChoiceResponses.csv'
-## .... ................................. .................. ................ .............................
+## Warning in rbind(names(probs), probs_f): number of columns of result is not
+## a multiple of vector length (arg 1)
+```
+
+```
+## Warning: 31 parsing failures.
+## row # A tibble: 5 x 5 col     row                           col               expected actual expected   <int>                         <chr>                  <chr>  <chr> actual 1  1344 LearningCategoryOnlineCourses no trailing characters     .5 file 2  2509             TimeModelBuilding no trailing characters     .5 row 3  2509               TimeVisualizing no trailing characters     .5 col 4  3236   LearningCategorySelftTaught no trailing characters     .5 expected 5  3236 LearningCategoryOnlineCourses no trailing characters     .5 actual # ... with 1 more variables: file <chr>
+## ... ................. ... ................................................................... ........ ................................................................... ...... ................................................................... .... ................................................................... ... ................................................................... ... ................................................................... ........ ................................................................... ...... .......................................
 ## See problems(...) for more details.
 ```
 
@@ -257,23 +270,23 @@ problems(multiple_choice_responses)
 ```
 
 ```
-## # A tibble: 43 x 5
-##      row col                               expected           actual file 
-##    <int> <chr>                             <chr>              <chr>  <chr>
-##  1  1209 CompensationAmount                a number           -      'mul…
-##  2  1316 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Rarely 'mul…
-##  3  1594 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Often  'mul…
-##  4  2443 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Most … 'mul…
-##  5  2466 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Most … 'mul…
-##  6  2622 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Often  'mul…
-##  7  2630 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Somet… 'mul…
-##  8  2724 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Often  'mul…
-##  9  3022 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Somet… 'mul…
-## 10  3396 WorkToolsFrequencyKNIMECommercial 1/0/T/F/TRUE/FALSE Somet… 'mul…
-## # ... with 33 more rows
+## # A tibble: 31 x 5
+##      row                           col               expected actual
+##    <int>                         <chr>                  <chr>  <chr>
+##  1  1344 LearningCategoryOnlineCourses no trailing characters     .5
+##  2  2509             TimeModelBuilding no trailing characters     .5
+##  3  2509               TimeVisualizing no trailing characters     .5
+##  4  3236   LearningCategorySelftTaught no trailing characters     .5
+##  5  3236 LearningCategoryOnlineCourses no trailing characters     .5
+##  6  3579               TimeVisualizing no trailing characters     .5
+##  7  3579           TimeFindingInsights no trailing characters     .5
+##  8  4019   LearningCategorySelftTaught no trailing characters     .5
+##  9  4019          LearningCategoryWork no trailing characters     .5
+## 10  4164                TimeProduction no trailing characters     .5
+## # ... with 21 more rows, and 1 more variables: file <chr>
 ```
 
-We see the row and column where the problem occurs. What's happening is that `read_csv` uses the first 1000 rows of a column to guess its type. But in some cases, it's guessing the column integer, because the first 1000 rows are whole numbers, when actually it should be double, as some entries have decimal points. We can fix this by changing the number of rows `read_csv` uses to guess the column type (with the `guess_max` argument) to the number of rows in the dataset. 
+We see the row and column where the problem occurs. What's happening is that `read_csv` uses the first 1000 rows of a column to guess its type. But in some cases, it's guessing the column is an integer, because the first 1000 rows are whole numbers, when actually it should be double, as some entries have decimal points. We can fix this by changing the number of rows `read_csv` uses to guess the column type (with the `guess_max` argument) to the number of rows in the dataset. 
 
 
 ```r
@@ -285,19 +298,19 @@ multiple_choice_responses <- readr::read_csv("multipleChoiceResponses.csv",
 ## Parsed with column specification:
 ## cols(
 ##   .default = col_character(),
-##   Age = col_double(),
+##   Age = col_integer(),
 ##   LearningCategorySelftTaught = col_double(),
 ##   LearningCategoryOnlineCourses = col_double(),
 ##   LearningCategoryWork = col_double(),
 ##   LearningCategoryUniversity = col_double(),
 ##   LearningCategoryKaggle = col_double(),
 ##   LearningCategoryOther = col_double(),
-##   TimeGatheringData = col_double(),
+##   TimeGatheringData = col_integer(),
 ##   TimeModelBuilding = col_double(),
 ##   TimeProduction = col_double(),
 ##   TimeVisualizing = col_double(),
 ##   TimeFindingInsights = col_double(),
-##   TimeOtherSelect = col_double()
+##   TimeOtherSelect = col_integer()
 ## )
 ```
 
@@ -545,7 +558,7 @@ colnames(multiple_choice_responses)
 
 It's clear that there were categories of questions, like "Job Factor" and "Work Methods Frequency."
 
-Now let's take a look at our numeric columns with skimr. Skimr is a package from rOpenSci that allows you to quickly view summaries of your data. `select_if` is a great package if you want to select only columns where a certain condition is true (in this case, whether it's a numeric column).  
+Now let's take a look at our numeric columns with skimr. Skimr is a package from rOpenSci that allows you to quickly view summaries of your data. `select_if` is a great function if you want to select only columns where a certain condition is true (in this case, whether it's a numeric column).  
 
 
 ```r
@@ -559,9 +572,18 @@ multiple_choice_responses %>%
 ##  n obs: 16716 
 ##  n variables: 13 
 ## 
+## Variable type: integer 
+##           variable missing complete     n  mean    sd p0 p25 median p75
+##                Age     331    16385 16716 32.37 10.47  0  25     30  37
+##  TimeGatheringData    9186     7530 16716 36.14 21.65  0  20     35  50
+##    TimeOtherSelect    9203     7513 16716  2.4  12.16  0   0      0   0
+##  p100     hist
+##   100 ▁▅▇▃▁▁▁▁
+##   100 ▅▅▅▇▂▂▁▁
+##   100 ▇▁▁▁▁▁▁▁
+## 
 ## Variable type: numeric 
 ##                       variable missing complete     n  mean    sd p0 p25
-##                            Age     331    16385 16716 32.37 10.47  0  25
 ##         LearningCategoryKaggle    3590    13126 16716  5.53 11.07  0   0
 ##  LearningCategoryOnlineCourses    3590    13126 16716 27.38 26.86  0   5
 ##          LearningCategoryOther    3622    13094 16716  1.8   9.36  0   0
@@ -569,13 +591,10 @@ multiple_choice_responses %>%
 ##     LearningCategoryUniversity    3594    13122 16716 16.99 23.68  0   0
 ##           LearningCategoryWork    3605    13111 16716 15.22 19     0   0
 ##            TimeFindingInsights    9193     7523 16716 13.09 12.97  0   5
-##              TimeGatheringData    9186     7530 16716 36.14 21.65  0  20
 ##              TimeModelBuilding    9188     7528 16716 21.27 16.17  0  10
-##                TimeOtherSelect    9203     7513 16716  2.4  12.16  0   0
 ##                 TimeProduction    9199     7517 16716 10.81 12.26  0   0
 ##                TimeVisualizing    9187     7529 16716 13.87 11.72  0   5
 ##  median p75 p100     hist
-##      30  37  100 ▁▅▇▃▁▁▁▁
 ##       0  10  100 ▇▁▁▁▁▁▁▁
 ##      20  40  100 ▇▃▂▃▁▁▁▁
 ##       0   0  100 ▇▁▁▁▁▁▁▁
@@ -583,14 +602,12 @@ multiple_choice_responses %>%
 ##       5  30  100 ▇▂▁▁▁▁▁▁
 ##      10  25  100 ▇▂▁▁▁▁▁▁
 ##      10  20  303 ▇▁▁▁▁▁▁▁
-##      35  50  100 ▅▅▅▇▂▂▁▁
 ##      20  30  100 ▇▇▃▂▁▁▁▁
-##       0   0  100 ▇▁▁▁▁▁▁▁
 ##      10  15  100 ▇▂▁▁▁▁▁▁
 ##      10  20  100 ▇▅▁▁▁▁▁▁
 ```
 
-I love the histograms. We can quickly see from the histogram that people learn a lot from being self taught and spend a good amount of time building models and gathering data, compared to visualizing or working in production.   
+I love the histograms. We can quickly see from the histograms that people self teach a lot and spend a good amount of time building models and gathering data, compared to visualizing data or working in production.   
 
 Let's see how many distinct answers we have for each question (most interesting for the non-numeric questions). `n_distinct()` is just a shorter and faster version of `length(unique())`. We can use `map_df` once again to apply a function to every column. 
 
@@ -605,13 +622,14 @@ multiple_choice_responses %>%
 ##   GenderSelect Country   Age EmploymentStatus StudentStatus
 ##          <int>   <int> <int>            <int>         <int>
 ## 1            5      53    85                7             3
-## # ... with 223 more variables: LearningDataScience <int>, CodeWriter
-## #   <int>, CareerSwitcher <int>, CurrentJobTitleSelect <int>, TitleFit
-## #   <int>, CurrentEmployerType <int>, MLToolNextYearSelect <int>,
+## # ... with 223 more variables: LearningDataScience <int>,
+## #   CodeWriter <int>, CareerSwitcher <int>, CurrentJobTitleSelect <int>,
+## #   TitleFit <int>, CurrentEmployerType <int>, MLToolNextYearSelect <int>,
 ## #   MLMethodNextYearSelect <int>, LanguageRecommendationSelect <int>,
 ## #   PublicDatasetsSelect <int>, LearningPlatformSelect <int>,
-## #   LearningPlatformUsefulnessArxiv <int>, LearningPlatformUsefulnessBlogs
-## #   <int>, LearningPlatformUsefulnessCollege <int>,
+## #   LearningPlatformUsefulnessArxiv <int>,
+## #   LearningPlatformUsefulnessBlogs <int>,
+## #   LearningPlatformUsefulnessCollege <int>,
 ## #   LearningPlatformUsefulnessCompany <int>,
 ## #   LearningPlatformUsefulnessConferences <int>,
 ## #   LearningPlatformUsefulnessFriends <int>,
@@ -621,29 +639,33 @@ multiple_choice_responses %>%
 ## #   LearningPlatformUsefulnessDocumentation <int>,
 ## #   LearningPlatformUsefulnessCourses <int>,
 ## #   LearningPlatformUsefulnessProjects <int>,
-## #   LearningPlatformUsefulnessPodcasts <int>, LearningPlatformUsefulnessSO
-## #   <int>, LearningPlatformUsefulnessTextbook <int>,
+## #   LearningPlatformUsefulnessPodcasts <int>,
+## #   LearningPlatformUsefulnessSO <int>,
+## #   LearningPlatformUsefulnessTextbook <int>,
 ## #   LearningPlatformUsefulnessTradeBook <int>,
 ## #   LearningPlatformUsefulnessTutoring <int>,
 ## #   LearningPlatformUsefulnessYouTube <int>,
 ## #   BlogsPodcastsNewslettersSelect <int>, LearningDataScienceTime <int>,
 ## #   JobSkillImportanceBigData <int>, JobSkillImportanceDegree <int>,
-## #   JobSkillImportanceStats <int>, JobSkillImportanceEnterpriseTools
-## #   <int>, JobSkillImportancePython <int>, JobSkillImportanceR <int>,
+## #   JobSkillImportanceStats <int>,
+## #   JobSkillImportanceEnterpriseTools <int>,
+## #   JobSkillImportancePython <int>, JobSkillImportanceR <int>,
 ## #   JobSkillImportanceSQL <int>, JobSkillImportanceKaggleRanking <int>,
 ## #   JobSkillImportanceMOOC <int>, JobSkillImportanceVisualizations <int>,
-## #   JobSkillImportanceOtherSelect1 <int>, JobSkillImportanceOtherSelect2
-## #   <int>, JobSkillImportanceOtherSelect3 <int>, CoursePlatformSelect
-## #   <int>, HardwarePersonalProjectsSelect <int>, TimeSpentStudying <int>,
+## #   JobSkillImportanceOtherSelect1 <int>,
+## #   JobSkillImportanceOtherSelect2 <int>,
+## #   JobSkillImportanceOtherSelect3 <int>, CoursePlatformSelect <int>,
+## #   HardwarePersonalProjectsSelect <int>, TimeSpentStudying <int>,
 ## #   ProveKnowledgeSelect <int>, DataScienceIdentitySelect <int>,
 ## #   FormalEducation <int>, MajorSelect <int>, Tenure <int>,
 ## #   PastJobTitlesSelect <int>, FirstTrainingSelect <int>,
-## #   LearningCategorySelftTaught <int>, LearningCategoryOnlineCourses
-## #   <int>, LearningCategoryWork <int>, LearningCategoryUniversity <int>,
-## #   LearningCategoryKaggle <int>, LearningCategoryOther <int>,
-## #   MLSkillsSelect <int>, MLTechniquesSelect <int>, ParentsEducation
-## #   <int>, EmployerIndustry <int>, EmployerSize <int>, EmployerSizeChange
-## #   <int>, EmployerMLTime <int>, EmployerSearchMethod <int>,
+## #   LearningCategorySelftTaught <int>,
+## #   LearningCategoryOnlineCourses <int>, LearningCategoryWork <int>,
+## #   LearningCategoryUniversity <int>, LearningCategoryKaggle <int>,
+## #   LearningCategoryOther <int>, MLSkillsSelect <int>,
+## #   MLTechniquesSelect <int>, ParentsEducation <int>,
+## #   EmployerIndustry <int>, EmployerSize <int>, EmployerSizeChange <int>,
+## #   EmployerMLTime <int>, EmployerSearchMethod <int>,
 ## #   UniversityImportance <int>, JobFunctionSelect <int>,
 ## #   WorkHardwareSelect <int>, WorkDataTypeSelect <int>,
 ## #   WorkProductionFrequency <int>, WorkDatasetSize <int>,
@@ -654,13 +676,15 @@ multiple_choice_responses %>%
 ## #   WorkToolsFrequencyFlume <int>, WorkToolsFrequencyGCP <int>,
 ## #   WorkToolsFrequencyHadoop <int>, WorkToolsFrequencyIBMCognos <int>,
 ## #   WorkToolsFrequencyIBMSPSSModeler <int>,
-## #   WorkToolsFrequencyIBMSPSSStatistics <int>, WorkToolsFrequencyIBMWatson
-## #   <int>, WorkToolsFrequencyImpala <int>, WorkToolsFrequencyJava <int>,
-## #   WorkToolsFrequencyJulia <int>, WorkToolsFrequencyJupyter <int>,
-## #   WorkToolsFrequencyKNIMECommercial <int>, WorkToolsFrequencyKNIMEFree
-## #   <int>, WorkToolsFrequencyMathematica <int>, WorkToolsFrequencyMATLAB
-## #   <int>, WorkToolsFrequencyAzure <int>, WorkToolsFrequencyExcel <int>,
-## #   WorkToolsFrequencyMicrosoftRServer <int>, …
+## #   WorkToolsFrequencyIBMSPSSStatistics <int>,
+## #   WorkToolsFrequencyIBMWatson <int>, WorkToolsFrequencyImpala <int>,
+## #   WorkToolsFrequencyJava <int>, WorkToolsFrequencyJulia <int>,
+## #   WorkToolsFrequencyJupyter <int>,
+## #   WorkToolsFrequencyKNIMECommercial <int>,
+## #   WorkToolsFrequencyKNIMEFree <int>,
+## #   WorkToolsFrequencyMathematica <int>, WorkToolsFrequencyMATLAB <int>,
+## #   WorkToolsFrequencyAzure <int>, WorkToolsFrequencyExcel <int>,
+## #   WorkToolsFrequencyMicrosoftRServer <int>, ...
 ```
 
 This data would be more helpful if it was tidy and had two columns, `variable` and `num_distinct_answers`. We can use `tidyr::gather` to change our data from "wide" to "long" format and then `arrange` it so we can see the columns with the most distinct answers first. If you've used (or are still using!) reshape2, check out tidyr; reshape2 is retired. While not exactly equivalent, `tidyr::spread` replaces `reshape2::dcast`, `tidyr::separate` `reshape2::colsplit`, and `tidyr::gather` `reshape2::melt`. 
@@ -675,22 +699,22 @@ multiple_choice_responses %>%
 
 ```
 ## # A tibble: 228 x 2
-##    question               num_distinct_answers
-##    <chr>                                 <int>
-##  1 WorkMethodsSelect                      6191
+##                  question num_distinct_answers
+##                     <chr>                <int>
+##  1      WorkMethodsSelect                 6191
 ##  2 LearningPlatformSelect                 5363
-##  3 WorkToolsSelect                        5249
-##  4 WorkChallengesSelect                   4288
-##  5 WorkDatasetsChallenge                  2221
-##  6 PastJobTitlesSelect                    1856
-##  7 MLTechniquesSelect                     1802
-##  8 WorkDatasets                           1724
-##  9 WorkAlgorithmsSelect                   1421
-## 10 MLSkillsSelect                         1038
+##  3        WorkToolsSelect                 5249
+##  4   WorkChallengesSelect                 4288
+##  5  WorkDatasetsChallenge                 2221
+##  6    PastJobTitlesSelect                 1856
+##  7     MLTechniquesSelect                 1802
+##  8           WorkDatasets                 1724
+##  9   WorkAlgorithmsSelect                 1421
+## 10         MLSkillsSelect                 1038
 ## # ... with 218 more rows
 ```
 
-Let's take a look at one of the ones with the most distinct answers. 
+Let's take a look at the question with the most distinct answers. 
 
 
 ```r
@@ -700,24 +724,24 @@ multiple_choice_responses %>%
 
 ```
 ## # A tibble: 6,191 x 2
-##    `fct_infreq(WorkMethodsSelect)`             n
-##    <fct>                                   <int>
-##  1 Data Visualization                        144
-##  2 Other                                     144
-##  3 Logistic Regression                        66
-##  4 Time Series Analysis                       49
-##  5 Neural Networks                            45
-##  6 A/B Testing                                42
+##            `fct_infreq(WorkMethodsSelect)`     n
+##                                     <fctr> <int>
+##  1                      Data Visualization   144
+##  2                                   Other   144
+##  3                     Logistic Regression    66
+##  4                    Time Series Analysis    49
+##  5                         Neural Networks    45
+##  6                             A/B Testing    42
 ##  7 Data Visualization,Time Series Analysis    37
-##  8 Text Analytics                             36
-##  9 Decision Trees                             29
-## 10 CNNs                                       22
+##  8                          Text Analytics    36
+##  9                          Decision Trees    29
+## 10                                    CNNs    22
 ## # ... with 6,181 more rows
 ```
 
-This is clearly multiple select situation, where if a person selected multiple answers they're listed separated by commas. Let's tidy it up. 
+This is clearly multiple select quesiton, where if a person selected multiple answers they're listed as one entry, separated by commas. Let's tidy it up. 
 
-`!` here is short for `== FALSE`. So `!is.na(WorkMethodsSelect)` is the same as `is.na(WorkMethodsSelect) == FALSE`. 
+`!` here is short for `== FALSE`. So `!is.na(WorkMethodsSelect)` is the same as `is.na(WorkMethodsSelect) == FALSE`. `str_split` says "Take this string and split it into a list by dividing it where there are `,`s." 
 
 
 ```r
@@ -731,22 +755,22 @@ nested_workmethods
 
 ```
 ## # A tibble: 7,773 x 2
-##    WorkMethodsSelect                                           work_method
-##    <chr>                                                       <list>     
-##  1 Association Rules,Collaborative Filtering,Neural Networks,… <chr [5]>  
-##  2 A/B Testing,Bayesian Techniques,Data Visualization,Decisio… <chr [12]> 
-##  3 Association Rules,Bayesian Techniques,CNNs,Collaborative F… <chr [17]> 
-##  4 Association Rules,Bayesian Techniques,CNNs,Cross-Validatio… <chr [14]> 
-##  5 A/B Testing,Cross-Validation,Data Visualization,Decision T… <chr [12]> 
-##  6 Data Visualization                                          <chr [1]>  
-##  7 A/B Testing,Association Rules,CNNs,Cross-Validation,Data V… <chr [14]> 
-##  8 Bayesian Techniques,Collaborative Filtering,Data Visualiza… <chr [12]> 
-##  9 Cross-Validation,Data Visualization,Decision Trees,Ensembl… <chr [7]>  
-## 10 A/B Testing,Bayesian Techniques,Decision Trees,Naive Bayes… <chr [5]>  
-## # ... with 7,763 more rows
+##                                                              WorkMethodsSelect
+##                                                                          <chr>
+##  1 Association Rules,Collaborative Filtering,Neural Networks,PCA and Dimension
+##  2 A/B Testing,Bayesian Techniques,Data Visualization,Decision Trees,Ensemble 
+##  3 Association Rules,Bayesian Techniques,CNNs,Collaborative Filtering,Data Vis
+##  4 Association Rules,Bayesian Techniques,CNNs,Cross-Validation,Data Visualizat
+##  5 A/B Testing,Cross-Validation,Data Visualization,Decision Trees,kNN and Othe
+##  6                                                          Data Visualization
+##  7 A/B Testing,Association Rules,CNNs,Cross-Validation,Data Visualization,Deci
+##  8 Bayesian Techniques,Collaborative Filtering,Data Visualization,HMMs,kNN and
+##  9 Cross-Validation,Data Visualization,Decision Trees,Ensemble Methods,Gradien
+## 10   A/B Testing,Bayesian Techniques,Decision Trees,Naive Bayes,Random Forests
+## # ... with 7,763 more rows, and 1 more variables: work_method <list>
 ```
 
-We can unnest. 
+Now we have a list column, with each entry in the list being one work method. We can unnest this so we can get back a tidy dataframe. 
 
 
 ```r
@@ -759,46 +783,19 @@ unnested_workmethods
 
 ```
 ## # A tibble: 59,497 x 1
-##    work_method                     
-##    <chr>                           
-##  1 Association Rules               
-##  2 Collaborative Filtering         
-##  3 Neural Networks                 
+##                         work_method
+##                               <chr>
+##  1                Association Rules
+##  2          Collaborative Filtering
+##  3                  Neural Networks
 ##  4 PCA and Dimensionality Reduction
-##  5 Random Forests                  
-##  6 A/B Testing                     
-##  7 Bayesian Techniques             
-##  8 Data Visualization              
-##  9 Decision Trees                  
-## 10 Ensemble Methods                
+##  5                   Random Forests
+##  6                      A/B Testing
+##  7              Bayesian Techniques
+##  8               Data Visualization
+##  9                   Decision Trees
+## 10                 Ensemble Methods
 ## # ... with 59,487 more rows
-```
-
-Now we have a couple options for examining the frequency of different work methods. But before we do so, we actually bring it back to having each method be one row and the number of people (in this case, number of entires, since each person could only list a method once) being another column. 
-
-
-```r
-method_freq <- unnested_workmethods %>%
-  count(method = fct_infreq(work_method))
-
-method_freq
-```
-
-```
-## # A tibble: 31 x 2
-##    method                               n
-##    <fct>                            <int>
-##  1 Data Visualization                5022
-##  2 Logistic Regression               4291
-##  3 Cross-Validation                  3868
-##  4 Decision Trees                    3695
-##  5 Random Forests                    3454
-##  6 Time Series Analysis              3153
-##  7 Neural Networks                   2811
-##  8 PCA and Dimensionality Reduction  2789
-##  9 kNN and Other Clustering          2624
-## 10 Text Analytics                    2405
-## # ... with 21 more rows
 ```
 
 Now I want to move on to understanding what challenges people face at work. This was one of those categories where there were multiple questions asked, all having names starting with `WorkChallengeFrequency` and ending with the challenge (e.g "DirtyData"). 
@@ -819,7 +816,7 @@ ggplot(WorkChallenges, aes(x = response)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](data_day_script_accompanying_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
+![](data_day_script_accompanying_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 This graph has two main problems. First, there are too many histograms. But second, the order of the x-axis is wrong. We want it to go from least often to most, but instead `rarely` is in the middle. We can manually reorder the level of this variable using `forcats::fct_relevel`. 
 
@@ -833,7 +830,7 @@ WorkChallenges %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-![](data_day_script_accompanying_files/figure-html/unnamed-chunk-18-1.png)<!-- -->
+![](data_day_script_accompanying_files/figure-html/unnamed-chunk-17-1.png)<!-- -->
 
 Now we've got the x-axis in the order we want it. Let's try dichotimizing the variable by grouping "most of the time" and "often" together as the person considering something a challenge. We can use `if_else` and `%in%`. `%in%` is equivalent to `response == "Most of the time" | response == "Often"` and can save you a lot of typing if you have a bunch of variables to match. 
 
@@ -854,7 +851,7 @@ ggplot(perc_problem_work_challenge, aes(x = question, y = perc_problem)) +
   coord_flip()
 ```
 
-![](data_day_script_accompanying_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
+![](data_day_script_accompanying_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
 
 This is better, but it's hard to read because the points are scattered all over the place. Although you can spot the highest one, then you have to track it back to the correct variable. And it's also hard to tell the order of the ones in the middle. 
 
@@ -869,7 +866,6 @@ ggplot(perc_problem_work_challenge, aes(x = fct_reorder(question, perc_problem),
   labs(x = "Aspect", y = "Percentage encountering challenge frequently")
 ```
 
-![](data_day_script_accompanying_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](data_day_script_accompanying_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
-
-
+Much better!
