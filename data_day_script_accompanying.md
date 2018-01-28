@@ -318,7 +318,11 @@ multiple_choice_responses <- readr::read_csv("multipleChoiceResponses.csv",
 ## See spec(...) for full column specifications.
 ```
 
-Great! Let's see what we can glean from the column names themselves.
+Great! 
+
+## Initial examination 
+
+Let's see what we can glean from the column names themselves.
 
 
 ```r
@@ -797,6 +801,8 @@ unnested_workmethods
 ## 10                 Ensemble Methods
 ## # ... with 59,487 more rows
 ```
+
+### Graphing Frequency of Different Work Challenges 
 
 Now I want to move on to understanding what challenges people face at work. This was one of those categories where there were multiple questions asked, all having names starting with `WorkChallengeFrequency` and ending with the challenge (e.g "DirtyData"). 
 
