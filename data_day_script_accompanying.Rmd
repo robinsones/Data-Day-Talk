@@ -88,10 +88,11 @@ Great!
 
 ## Initial examination 
 
-Let's see what we can glean from the column names themselves.
+Let's see what we can glean from the column names themselves. I'll only look at the first 70 since there are so many. 
 
 ```{r}
-colnames(multiple_choice_responses)
+colnames(multiple_choice_responses) %>%
+  head(70)
 ```
 
 It's clear that there were categories of questions, like "Job Factor" and "Work Methods Frequency."
