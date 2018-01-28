@@ -723,23 +723,23 @@ Let's take a look at the question with the most distinct answers.
 
 ```r
 multiple_choice_responses %>%
-  count(fct_infreq(WorkMethodsSelect))
+  count(WorkMethodsSelect, sort = TRUE)
 ```
 
 ```
 ## # A tibble: 6,191 x 2
-##            `fct_infreq(WorkMethodsSelect)`     n
-##                                     <fctr> <int>
-##  1                      Data Visualization   144
-##  2                                   Other   144
-##  3                     Logistic Regression    66
-##  4                    Time Series Analysis    49
-##  5                         Neural Networks    45
-##  6                             A/B Testing    42
-##  7 Data Visualization,Time Series Analysis    37
-##  8                          Text Analytics    36
-##  9                          Decision Trees    29
-## 10                                    CNNs    22
+##                          WorkMethodsSelect     n
+##                                      <chr> <int>
+##  1                                    <NA>  8943
+##  2                      Data Visualization   144
+##  3                                   Other   144
+##  4                     Logistic Regression    66
+##  5                    Time Series Analysis    49
+##  6                         Neural Networks    45
+##  7                             A/B Testing    42
+##  8 Data Visualization,Time Series Analysis    37
+##  9                          Text Analytics    36
+## 10                          Decision Trees    29
 ## # ... with 6,181 more rows
 ```
 

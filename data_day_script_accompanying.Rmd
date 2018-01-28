@@ -126,7 +126,7 @@ Let's take a look at the question with the most distinct answers.
 
 ```{r}
 multiple_choice_responses %>%
-  count(fct_infreq(WorkMethodsSelect))
+  count(WorkMethodsSelect, sort = TRUE)
 ```
 
 This is clearly multiple select question, where if a person selected multiple answers they're listed as one entry, separated by commas. Let's tidy it up. 
