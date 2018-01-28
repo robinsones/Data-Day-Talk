@@ -113,7 +113,7 @@ multiple_choice_responses %>%
   purrr::map_df(~n_distinct(.)) 
 ```
 
-This data would be more helpful if it was tidy and had two columns, `variable` and `num_distinct_answers`. We can use `tidyr::gather` to change our data from "wide" to "long" format and then `arrange` it so we can see the columns with the most distinct answers first. If you've used (or are still using!) reshape2, check out tidyr; reshape2 is retired. While not exactly equivalent, `tidyr::spread` replaces `reshape2::dcast`, `tidyr::separate` `reshape2::colsplit`, and `tidyr::gather` `reshape2::melt`. 
+This data would be more helpful if it was tidy and had two columns, `question` and `num_distinct_answers`. We can use `tidyr::gather` to change our data from "wide" to "long" format and then `arrange` it so we can see the columns with the most distinct answers first. If you've used (or are still using!) reshape2, check out tidyr; reshape2 is retired. While not exactly equivalent, `tidyr::spread` replaces `reshape2::dcast`, `tidyr::separate` `reshape2::colsplit`, and `tidyr::gather` `reshape2::melt`. 
 
 ```{r}
 multiple_choice_responses %>%
@@ -129,7 +129,7 @@ multiple_choice_responses %>%
   count(fct_infreq(WorkMethodsSelect))
 ```
 
-This is clearly multiple select quesiton, where if a person selected multiple answers they're listed as one entry, separated by commas. Let's tidy it up. 
+This is clearly multiple select question, where if a person selected multiple answers they're listed as one entry, separated by commas. Let's tidy it up. 
 
 `!` here is short for `== FALSE`. So `!is.na(WorkMethodsSelect)` is the same as `is.na(WorkMethodsSelect) == FALSE`. `str_split` says "Take this string and split it into a list by dividing it where there are `,`s." 
 
@@ -182,7 +182,7 @@ WorkChallenges %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
 
-Now we've got the x-axis in the order we want it. Let's try dichotimizing the variable by grouping "most of the time" and "often" together as the person considering something a challenge. We can use `if_else` and `%in%`. `%in%` is equivalent to `response == "Most of the time" | response == "Often"` and can save you a lot of typing if you have a bunch of variables to match. 
+Now we've got the x-axis in the order we want it. Let's try dichotomizing the variable by grouping "most of the time" and "often" together as the person considering something a challenge. We can use `if_else` and `%in%`. `%in%` is equivalent to `response == "Most of the time" | response == "Often"` and can save you a lot of typing if you have a bunch of variables to match. 
 
 Grouping by the question, we can use `summarise` to reduce the dataset to one row per question, adding the variable `perc_problem` for the percentage of responses that thought something was a challenge often or most of the time. This way, we can make one graph with data for all the questions and easily compare them. 
 
