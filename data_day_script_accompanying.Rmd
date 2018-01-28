@@ -24,7 +24,7 @@ multiple_choice_responses_base <- read.csv("multipleChoiceResponses.csv")
 
 Let's say we wanted to know the numbers of NAs in each column. We can use `is.na` to change each entry in a column to TRUE or FALSE, depending on whether it's NA, and then sum the column (because `TRUE` evaluates as 1 and `FALSE` as 0) to get the total number of NAs. 
 
-To do this for every column, we can use `purrr::map_df`, which applies the given function over the whole dataset, column by column, and returns a dataframe with the same column name and one row representing the number of NAs in each column. If you're used to the `apply` family of functions, `purrr` offers the same capabilities in a more consistent way.  
+To do this for every column, we can use `purrr::map_df`, which applies the given function over the whole dataset, column by column, and returns a dataframe with the same column names and one row representing the number of NAs in each column. If you're used to the `apply` family of functions, `purrr` offers the same capabilities in a more consistent way. The `_df` part of the function represents what we want back (a dataframe); using `map` would get us a list. 
 
 ```{r}
 # for one column
@@ -35,14 +35,14 @@ multiple_choice_responses_base %>%
   purrr::map_df(~sum(is.na(.)))
 ```
 
-Wow that's lucky! So many variables that don't have NAs. But ... is it too good to be true? Let's look at the entries of 
+Wow that's lucky! So many variables that don't have NAs. But ... is it too good to be true? Let's look at the entries of one column.  
 
 ```{r}
 multiple_choice_responses_base %>%
   dplyr::count(StudentStatus)
 ```
 
-Yep. We see here we have a lot of `""` entries instead of NAs. We can correct this with `dplyr::na_if`. We can also use `%<>%`, which is a reassignment pipe. 
+Yep. We see here we have a lot of `""` entries instead of NAs. We can correct this with `dplyr::na_if`, which takes as an argument what we want to turn into NAs. We can also use `%<>%`, which is a reassignment pipe. 
 
 ```{r}
 multiple_choice_responses_base %<>%
@@ -55,6 +55,7 @@ multiple_choice_responses_base <- multiple_choice_responses_base %>%
 ```
 
 Now we can count the NAs again. 
+
 ```{r}
 multiple_choice_responses_base %>%
   purrr::map_df(~sum(is.na(.)))
@@ -74,7 +75,7 @@ It's definitely faster, but it seems we have some errors. Let's inspect them.
 problems(multiple_choice_responses)
 ```
 
-We see the row and column where the problem occurs. What's happening is that `read_csv` uses the first 1000 rows of a column to guess its type. But in some cases, it's guessing the column integer, because the first 1000 rows are whole numbers, when actually it should be double, as some entries have decimal points. We can fix this by changing the number of rows `read_csv` uses to guess the column type (with the `guess_max` argument) to the number of rows in the dataset. 
+We see the row and column where the problem occurs. What's happening is that `read_csv` uses the first 1000 rows of a column to guess its type. But in some cases, it's guessing the column is an integer, because the first 1000 rows are whole numbers, when actually it should be double, as some entries have decimal points. We can fix this by changing the number of rows `read_csv` uses to guess the column type (with the `guess_max` argument) to the number of rows in the dataset. 
 
 ```{r}
 multiple_choice_responses <- readr::read_csv("multipleChoiceResponses.csv", 
@@ -89,7 +90,7 @@ colnames(multiple_choice_responses)
 
 It's clear that there were categories of questions, like "Job Factor" and "Work Methods Frequency."
 
-Now let's take a look at our numeric columns with skimr. Skimr is a package from rOpenSci that allows you to quickly view summaries of your data. `select_if` is a great package if you want to select only columns where a certain condition is true (in this case, whether it's a numeric column).  
+Now let's take a look at our numeric columns with skimr. Skimr is a package from rOpenSci that allows you to quickly view summaries of your data. `select_if` is a great function if you want to select only columns where a certain condition is true (in this case, whether it's a numeric column).  
 
 ```{r}
 multiple_choice_responses %>%
@@ -97,7 +98,7 @@ multiple_choice_responses %>%
   skimr::skim()
 ```
 
-I love the histograms. We can quickly see from the histogram that people learn a lot from being self taught and spend a good amount of time building models and gathering data, compared to visualizing or working in production.   
+I love the histograms. We can quickly see from the histograms that people self teach a lot and spend a good amount of time building models and gathering data, compared to visualizing data or working in production.   
 
 Let's see how many distinct answers we have for each question (most interesting for the non-numeric questions). `n_distinct()` is just a shorter and faster version of `length(unique())`. We can use `map_df` once again to apply a function to every column. 
 
@@ -115,16 +116,16 @@ multiple_choice_responses %>%
   arrange(desc(num_distinct_answers))
 ```
 
-Let's take a look at one of the ones with the most distinct answers. 
+Let's take a look at the question with the most distinct answers. 
 
 ```{r}
 multiple_choice_responses %>%
   count(fct_infreq(WorkMethodsSelect))
 ```
 
-This is clearly multiple select situation, where if a person selected multiple answers they're listed separated by commas. Let's tidy it up. 
+This is clearly multiple select quesiton, where if a person selected multiple answers they're listed as one entry, separated by commas. Let's tidy it up. 
 
-`!` here is short for `== FALSE`. So `!is.na(WorkMethodsSelect)` is the same as `is.na(WorkMethodsSelect) == FALSE`. 
+`!` here is short for `== FALSE`. So `!is.na(WorkMethodsSelect)` is the same as `is.na(WorkMethodsSelect) == FALSE`. `str_split` says "Take this string and split it into a list by dividing it where there are `,`s." 
 
 ```{r}
 nested_workmethods <- multiple_choice_responses %>%
@@ -135,7 +136,7 @@ nested_workmethods <- multiple_choice_responses %>%
 nested_workmethods
 ```
 
-We can unnest. 
+Now we have a list column, with each entry in the list being one work method. We can unnest this so we can get back a tidy dataframe. 
 
 ```{r}
 unnested_workmethods <- nested_workmethods %>%
@@ -143,15 +144,6 @@ unnested_workmethods <- nested_workmethods %>%
   select(work_method)
 
 unnested_workmethods
-```
-
-Now we have a couple options for examining the frequency of different work methods. But before we do so, we actually bring it back to having each method be one row and the number of people (in this case, number of entires, since each person could only list a method once) being another column. 
-
-```{r}
-method_freq <- unnested_workmethods %>%
-  count(method = fct_infreq(work_method))
-
-method_freq
 ```
 
 Now I want to move on to understanding what challenges people face at work. This was one of those categories where there were multiple questions asked, all having names starting with `WorkChallengeFrequency` and ending with the challenge (e.g "DirtyData"). 
@@ -211,5 +203,4 @@ ggplot(perc_problem_work_challenge, aes(x = fct_reorder(question, perc_problem),
   labs(x = "Aspect", y = "Percentage encountering challenge frequently")
 ```
 
-
-
+Much better!
